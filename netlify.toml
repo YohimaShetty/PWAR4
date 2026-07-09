@@ -1,0 +1,14 @@
+# Netlify hosts the static frontend only. The backend (Express + Gemini) must be
+# deployed separately (Render/Railway/Vercel) since it holds the API key.
+# Set BACKEND_URL below (or via Netlify's site settings > Build & deploy > Environment)
+# to your deployed backend's base URL before deploying.
+
+[build]
+  base = "frontend"
+  publish = "."
+
+[[redirects]]
+  from = "/api/*"
+  to = "https://YOUR-BACKEND-URL.example.com/api/:splat"
+  status = 200
+  force = true

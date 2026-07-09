@@ -1,0 +1,68 @@
+{
+  "stadium": {
+    "name": "MetLife Stadium - FIFA World Cup 2026",
+    "capacity": 82500,
+    "zones": ["A", "B", "C", "D", "E", "F", "G", "H"]
+  },
+  "seatZoneMap": {
+    "A": { "sections": [101, 102, 103, 104, 105, 106, 107, 108], "gate": "Gate 1 - North" },
+    "B": { "sections": [109, 110, 111, 112, 113, 114, 115, 116], "gate": "Gate 2 - Northeast" },
+    "C": { "sections": [117, 118, 119, 120, 121, 122, 123, 124], "gate": "Gate 3 - East" },
+    "D": { "sections": [125, 126, 127, 128, 129, 130, 131, 132], "gate": "Gate 4 - Southeast" },
+    "E": { "sections": [201, 202, 203, 204, 205, 206, 207, 208], "gate": "Gate 5 - South" },
+    "F": { "sections": [209, 210, 211, 212, 213, 214, 215, 216], "gate": "Gate 6 - Southwest" },
+    "G": { "sections": [217, 218, 219, 220, 221, 222, 223, 224], "gate": "Gate 7 - West" },
+    "H": { "sections": [225, 226, 227, 228, 229, 230, 231, 232], "gate": "Gate 8 - Northwest" }
+  },
+  "gates": [
+    { "id": "gate1", "name": "Gate 1 - North", "x": 0, "y": -10, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate2", "name": "Gate 2 - Northeast", "x": 7, "y": -7, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate3", "name": "Gate 3 - East", "x": 10, "y": 0, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate4", "name": "Gate 4 - Southeast", "x": 7, "y": 7, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate5", "name": "Gate 5 - South", "x": 0, "y": 10, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate6", "name": "Gate 6 - Southwest", "x": -7, "y": 7, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate7", "name": "Gate 7 - West", "x": -10, "y": 0, "avgWalkSpeedMps": 1.2 },
+    { "id": "gate8", "name": "Gate 8 - Northwest", "x": -7, "y": -7, "avgWalkSpeedMps": 1.2 }
+  ],
+  "facilities": [
+    { "id": "f1", "type": "restroom", "name": "Restroom N1", "zone": "A", "x": 1, "y": -8, "accessible": true },
+    { "id": "f2", "type": "restroom", "name": "Restroom NE1", "zone": "B", "x": 6, "y": -6, "accessible": true },
+    { "id": "f3", "type": "restroom", "name": "Restroom E1", "zone": "C", "x": 9, "y": 1, "accessible": false },
+    { "id": "f4", "type": "restroom", "name": "Restroom SE1", "zone": "D", "x": 6, "y": 6, "accessible": true },
+    { "id": "f5", "type": "restroom", "name": "Restroom S1", "zone": "E", "x": 1, "y": 9, "accessible": true },
+    { "id": "f6", "type": "restroom", "name": "Restroom SW1", "zone": "F", "x": -6, "y": 6, "accessible": false },
+    { "id": "f7", "type": "restroom", "name": "Restroom W1", "zone": "G", "x": -9, "y": 1, "accessible": true },
+    { "id": "f8", "type": "restroom", "name": "Restroom NW1", "zone": "H", "x": -6, "y": -6, "accessible": true },
+    { "id": "f9", "type": "food", "name": "North Food Court", "zone": "A", "x": 2, "y": -9, "accessible": true },
+    { "id": "f10", "type": "food", "name": "East Food Court", "zone": "C", "x": 9, "y": 2, "accessible": true },
+    { "id": "f11", "type": "food", "name": "South Food Court", "zone": "E", "x": 2, "y": 9, "accessible": true },
+    { "id": "f12", "type": "food", "name": "West Food Court", "zone": "G", "x": -9, "y": 2, "accessible": true },
+    { "id": "f13", "type": "medical", "name": "Medical Room - North", "zone": "A", "x": 0, "y": -9, "accessible": true },
+    { "id": "f14", "type": "medical", "name": "Medical Room - South", "zone": "E", "x": 0, "y": 9, "accessible": true },
+    { "id": "f15", "type": "medical", "name": "Medical Room - East", "zone": "C", "x": 9.5, "y": 0.5, "accessible": true },
+    { "id": "f16", "type": "medical", "name": "Medical Room - West", "zone": "G", "x": -9.5, "y": 0.5, "accessible": true },
+    { "id": "f17", "type": "charging", "name": "Charging Hub N", "zone": "A", "x": 1.5, "y": -8.5, "accessible": true },
+    { "id": "f18", "type": "charging", "name": "Charging Hub S", "zone": "E", "x": 1.5, "y": 8.5, "accessible": true },
+    { "id": "f19", "type": "water", "name": "Water Refill - North", "zone": "A", "x": 0.5, "y": -8.2, "accessible": true },
+    { "id": "f20", "type": "water", "name": "Water Refill - South", "zone": "E", "x": 0.5, "y": 8.2, "accessible": true },
+    { "id": "f21", "type": "recycling", "name": "Recycling Point - Concourse North", "zone": "A", "x": 1, "y": -7.5, "accessible": true },
+    { "id": "f22", "type": "recycling", "name": "Recycling Point - Concourse South", "zone": "E", "x": 1, "y": 7.5, "accessible": true }
+  ],
+  "responseTeams": [
+    { "id": "rt1", "type": "medical", "name": "Medical Team North", "zone": "A", "x": 0, "y": -9 },
+    { "id": "rt2", "type": "medical", "name": "Medical Team South", "zone": "E", "x": 0, "y": 9 },
+    { "id": "rt3", "type": "security", "name": "Security Squad East", "zone": "C", "x": 9, "y": 0 },
+    { "id": "rt4", "type": "security", "name": "Security Squad West", "zone": "G", "x": -9, "y": 0 },
+    { "id": "rt5", "type": "fire", "name": "Fire & Safety Unit", "zone": "A", "x": -2, "y": -9 },
+    { "id": "rt6", "type": "child_services", "name": "Lost Child Services Desk", "zone": "E", "x": 2, "y": 9 },
+    { "id": "rt7", "type": "general", "name": "Volunteer Coordination HQ", "zone": "C", "x": 8, "y": -1 }
+  ],
+  "transportOptions": [
+    { "mode": "metro", "co2GPerKm": 41, "avgSpeedKmh": 35 },
+    { "mode": "shuttle_bus", "co2GPerKm": 105, "avgSpeedKmh": 25 },
+    { "mode": "private_car", "co2GPerKm": 192, "avgSpeedKmh": 40 },
+    { "mode": "rideshare", "co2GPerKm": 180, "avgSpeedKmh": 40 },
+    { "mode": "walking", "co2GPerKm": 0, "avgSpeedKmh": 5 },
+    { "mode": "bicycle", "co2GPerKm": 0, "avgSpeedKmh": 15 }
+  ]
+}

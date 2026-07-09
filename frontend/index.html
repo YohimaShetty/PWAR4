@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>StadiumMind AI — Operations Copilot</title>
+<meta name="description" content="AI-powered stadium operations copilot for FIFA World Cup 2026" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ============ SCOREBOARD STRIP (top bar) ============ -->
+<header class="scorebug">
+  <div class="scorebug__brand">
+    <span class="scorebug__mark" aria-hidden="true">◈</span>
+    <span class="scorebug__name">STADIUM<b>MIND</b> AI</span>
+  </div>
+  <nav class="scorebug__stats" id="scorebugStats" aria-label="Live stadium summary">
+    <div class="stat"><span class="stat__label">OCCUPANCY</span><span class="stat__value mono" id="statOccupancy">—</span></div>
+    <div class="stat"><span class="stat__label">CAPACITY</span><span class="stat__value mono">82,500</span></div>
+    <div class="stat"><span class="stat__label">ACTIVE INCIDENTS</span><span class="stat__value mono" id="statIncidents">0</span></div>
+    <div class="stat"><span class="stat__label">CLOCK</span><span class="stat__value mono" id="statClock">--:--:--</span></div>
+  </nav>
+  <div class="scorebug__actions">
+    <button class="iconbtn" id="themeToggle" title="Toggle light / dark" aria-label="Toggle theme">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<div class="shell">
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="side" aria-label="Modules">
+    <button class="side__item is-active" data-view="overview">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 12l9-9 9 9M5 10v10h14V10" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Stadium Pulse</span>
+    </button>
+    <button class="side__item" data-view="navigation">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M3 11l18-8-8 18-2-8-8-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+      <span>Navigation</span>
+    </button>
+    <button class="side__item" data-view="crowd">
+      <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="8" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="16" cy="8" r="3" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2 20c0-4 3-6 6-6s6 2 6 6M10 20c0-4 3-6 6-6s6 2 6 6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Crowd Intelligence</span>
+    </button>
+    <button class="side__item" data-view="accessibility">
+      <svg viewBox="0 0 24 24" width="20" height="20"><circle cx="12" cy="4" r="2" fill="currentColor"/><path d="M4 9h16M12 9v6l-4 7M12 15l4 7M9 12h6" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Accessibility</span>
+    </button>
+    <button class="side__item" data-view="sustainability">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 21C7 16 4 12.5 4 8.5A5.5 5.5 0 0 1 12 5a5.5 5.5 0 0 1 8 3.5C20 12.5 17 16 12 21z" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+      <span>Sustainability</span>
+    </button>
+    <button class="side__item" data-view="incidents">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2L2 20h20L12 2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M12 9v5M12 17h.01" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      <span>Incident Reporting</span>
+    </button>
+    <button class="side__item" data-view="volunteers">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M12 2l2.4 4.8L20 8l-4 4 1 5.6L12 15l-5 2.6 1-5.6-4-4 5.6-1.2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      <span>Volunteer Copilot</span>
+    </button>
+    <button class="side__item" data-view="analytics">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>
+      <span>Analytics</span>
+    </button>
+    <button class="side__item" data-view="reports">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path d="M7 3h7l4 4v14H7z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 12h6M9 16h6" stroke="currentColor" stroke-width="1.6"/></svg>
+      <span>Report Generator</span>
+    </button>
+  </aside>
+
+  <!-- ============ MAIN ============ -->
+  <main class="main">
+
+    <!-- ---------- OVERVIEW / STADIUM PULSE (signature element) ---------- -->
+    <section class="view is-active" id="view-overview">
+      <div class="view__head">
+        <div>
+          <p class="eyebrow">LIVE · Zones A–H</p>
+          <h1>Stadium Pulse</h1>
+          <p class="sub">A live occupancy map of the venue, redrawn from the same feed every dashboard reads from.</p>
+        </div>
+        <div class="head__note" id="lastUpdated">—</div>
+      </div>
+
+      <div class="pulse-wrap">
+        <svg id="pulseMap" viewBox="-14 -14 28 28" class="pulse-map" role="img" aria-label="Octagonal stadium occupancy map"></svg>
+        <div class="pulse-legend">
+          <div class="legend__row"><span class="dot dot--low"></span> Low</div>
+          <div class="legend__row"><span class="dot dot--mod"></span> Moderate</div>
+          <div class="legend__row"><span class="dot dot--high"></span> High</div>
+          <div class="legend__row"><span class="dot dot--crit"></span> Critical</div>
+        </div>
+      </div>
+
+      <div class="grid-cards" id="zoneCards"></div>
+    </section>
+
+    <!-- ---------- NAVIGATION ---------- -->
+    <section class="view" id="view-navigation">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 01</p><h1>Navigation Assistant</h1><p class="sub">Best gate, walking route, and nearby facilities — grounded in the real seat map.</p></div></div>
+
+      <form class="panel form-grid" id="navForm">
+        <label>Seat section number
+          <input type="text" name="seatSection" placeholder="e.g. 114" required />
+        </label>
+        <label>Arrival time (minutes from now)
+          <input type="number" name="arrivalMinutesFromNow" placeholder="e.g. 30" />
+        </label>
+        <label class="checkbox">
+          <input type="checkbox" name="accessible" /> I need wheelchair-accessible facilities
+        </label>
+        <button class="btn btn--primary" type="submit">Get my route</button>
+      </form>
+
+      <div id="navResult" class="result-area"></div>
+    </section>
+
+    <!-- ---------- CROWD INTELLIGENCE ---------- -->
+    <section class="view" id="view-crowd">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 02</p><h1>Crowd Intelligence</h1><p class="sub">Live density per zone with regression-based congestion forecasting.</p></div></div>
+      <div class="panel">
+        <canvas id="crowdChart" height="90"></canvas>
+      </div>
+      <div class="form-grid panel" style="margin-top:16px;">
+        <label>Predict congestion for zone
+          <select id="crowdZoneSelect"></select>
+        </label>
+        <button class="btn btn--primary" id="crowdPredictBtn" type="button">Predict</button>
+      </div>
+      <div id="crowdResult" class="result-area"></div>
+    </section>
+
+    <!-- ---------- ACCESSIBILITY ---------- -->
+    <section class="view" id="view-accessibility">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 03</p><h1>Accessibility Assistant</h1><p class="sub">Facilities and guidance tailored to your needs.</p></div></div>
+      <div class="panel form-grid">
+        <label>I am
+          <select id="accessProfile">
+            <option value="">— choose a profile —</option>
+            <option value="wheelchair">Wheelchair user</option>
+            <option value="elderly">Elderly visitor</option>
+            <option value="family_with_kids">Family with kids</option>
+            <option value="visually_impaired">Visually impaired</option>
+            <option value="hearing_impaired">Hearing impaired</option>
+          </select>
+        </label>
+        <label>Zone (optional)
+          <select id="accessZone"></select>
+        </label>
+        <button class="btn btn--primary" id="accessBtn" type="button">Find facilities</button>
+      </div>
+      <div id="accessResult" class="result-area"></div>
+    </section>
+
+    <!-- ---------- SUSTAINABILITY ---------- -->
+    <section class="view" id="view-sustainability">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 04</p><h1>Sustainability Coach</h1><p class="sub">Estimate your travel footprint and see lower-carbon alternatives.</p></div></div>
+      <form class="panel form-grid" id="sustainForm">
+        <label>Distance to stadium (km)
+          <input type="number" step="0.1" name="distanceKm" placeholder="e.g. 12.5" required />
+        </label>
+        <label>Travel mode
+          <select name="mode" id="modeSelect" required></select>
+        </label>
+        <button class="btn btn--primary" type="submit">Calculate footprint</button>
+      </form>
+      <div id="sustainResult" class="result-area"></div>
+    </section>
+
+    <!-- ---------- INCIDENTS ---------- -->
+    <section class="view" id="view-incidents">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 05</p><h1>Incident Reporting</h1><p class="sub">Rule-based severity classification with AI-written action guidance.</p></div></div>
+      <form class="panel form-grid" id="incidentForm">
+        <label>Incident type
+          <select name="type" required>
+            <option value="medical">Medical emergency</option>
+            <option value="violence">Violence</option>
+            <option value="lost_child">Lost child</option>
+            <option value="blocked_exit">Blocked exit</option>
+            <option value="fire">Fire</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label>Zone
+          <select name="zone" id="incidentZone" required></select>
+        </label>
+        <label class="span-2">Description
+          <textarea name="description" rows="3" placeholder="Describe what you're seeing..." required></textarea>
+        </label>
+        <button class="btn btn--danger" type="submit">Report incident</button>
+      </form>
+      <div id="incidentResult" class="result-area"></div>
+      <div class="panel" style="margin-top:16px;">
+        <h3 class="panel__title">Recent incidents</h3>
+        <div id="incidentList" class="incident-list"></div>
+      </div>
+    </section>
+
+    <!-- ---------- VOLUNTEERS ---------- -->
+    <section class="view" id="view-volunteers">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 06</p><h1>Volunteer Copilot</h1><p class="sub">Context-aware task guidance for on-duty volunteers.</p></div></div>
+      <form class="panel form-grid" id="volunteerForm">
+        <label>Your zone
+          <select name="zone" id="volunteerZone"></select>
+        </label>
+        <label class="span-2">Ask the copilot
+          <textarea name="question" rows="2" placeholder="e.g. What should I do right now?" required></textarea>
+        </label>
+        <button class="btn btn--primary" type="submit">Ask</button>
+      </form>
+      <div id="volunteerResult" class="result-area"></div>
+    </section>
+
+    <!-- ---------- ANALYTICS ---------- -->
+    <section class="view" id="view-analytics">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 07</p><h1>Analytics</h1><p class="sub">Live operational metrics, auto-explained in plain English.</p></div></div>
+      <div class="grid-cards" id="analyticsCards"></div>
+      <div class="panel"><canvas id="analyticsChart" height="90"></canvas></div>
+      <button class="btn btn--primary" id="explainBtn" style="margin-top:14px;">Explain this in plain English</button>
+      <div id="analyticsExplain" class="result-area"></div>
+    </section>
+
+    <!-- ---------- REPORTS ---------- -->
+    <section class="view" id="view-reports">
+      <div class="view__head"><div><p class="eyebrow">AI MODULE 08</p><h1>Report Generator</h1><p class="sub">Download a live PDF report with an AI-written executive summary.</p></div></div>
+      <div class="grid-cards" id="reportCards"></div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ============ AI COPILOT (floating console) ============ -->
+<div class="copilot" id="copilot">
+  <button class="copilot__toggle" id="copilotToggle" aria-label="Open StadiumMind Copilot">
+    <svg viewBox="0 0 24 24" width="22" height="22"><path d="M4 4h16v11H7l-3 3z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+    <span>Ask Copilot</span>
+  </button>
+  <div class="copilot__panel" id="copilotPanel" hidden>
+    <div class="copilot__head">
+      <span>StadiumMind Copilot</span>
+      <div>
+        <button id="copilotClear" class="linklike" title="Clear conversation">Clear</button>
+        <button id="copilotClose" class="iconbtn" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="copilot__messages" id="copilotMessages">
+      <div class="msg msg--bot">Hi — I'm your Stadium Operations Copilot. Ask me about gates, crowd levels, accessibility, safety, or anything happening at the venue right now.</div>
+    </div>
+    <form class="copilot__input" id="copilotForm">
+      <input type="text" id="copilotInput" placeholder="Ask about gates, crowds, safety..." autocomplete="off" />
+      <button type="submit" class="btn btn--primary">Send</button>
+    </form>
+  </div>
+</div>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/chat.js"></script>
+</body>
+</html>
