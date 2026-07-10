@@ -70,6 +70,19 @@
     return el;
   }
 
+  async function requestFallbackReply(userText) {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: userText, sessionId }),
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      throw new Error(payload.error || 'AI service temporarily unavailable. Please try again.');
+    }
+    return payload.answer || '';
+  }
+
   async function streamReply(userText, typingEl) {
     const res = await fetch('/api/chat/stream', {
       method: 'POST',
@@ -77,9 +90,34 @@
       body: JSON.stringify({ message: userText, sessionId }),
     });
 
-    if (!res.ok || !res.body) {
-      typingEl.remove();
-      addMessage("I don't have enough information to answer that accurately right now — the AI service may be unavailable.", 'bot');
+    if (!res.ok) {
+      let errMsg = "I don't have enough information to answer that accurately right now — the AI service may be unavailable.";
+      try {
+        const payload = await res.json();
+        if (payload && payload.error) errMsg = payload.error;
+      } catch (_) {
+        // Keep the default fallback message if body is not JSON.
+      }
+      try {
+        const fallback = await requestFallbackReply(userText);
+        typingEl.remove();
+        addMessage(fallback, 'bot');
+      } catch (_) {
+        typingEl.remove();
+        addMessage(errMsg, 'bot');
+      }
+      return;
+    }
+
+    if (!res.body) {
+      try {
+        const fallback = await requestFallbackReply(userText);
+        typingEl.remove();
+        addMessage(fallback, 'bot');
+      } catch (_) {
+        typingEl.remove();
+        addMessage("I don't have enough information to answer that accurately right now — the AI service may be unavailable.", 'bot');
+      }
       return;
     }
 

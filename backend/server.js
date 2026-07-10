@@ -31,10 +31,26 @@ app.use((req, res, next) => {
   next();
 });
 
-// --- Rate limiting: stricter on AI-calling endpoints, since they cost tokens ---
-const aiLimiter = createRateLimiter({ windowMs: 60000, max: 20 });
-const generalLimiter = createRateLimiter({ windowMs: 60000, max: 120 });
-app.use(generalLimiter);
+// --- Rate limiting ---
+// Keep read-heavy dashboards usable while still protecting write/AI endpoints.
+const apiReadLimiter = createRateLimiter({
+  windowMs: 60000,
+  max: 600,
+  methods: ['GET'],
+});
+const apiWriteLimiter = createRateLimiter({
+  windowMs: 60000,
+  max: 180,
+  methods: ['POST', 'PUT', 'PATCH', 'DELETE'],
+});
+const aiLimiter = createRateLimiter({
+  windowMs: 60000,
+  max: 30,
+  methods: ['POST'],
+});
+
+app.use('/api', apiReadLimiter);
+app.use('/api', apiWriteLimiter);
 
 // --- Static reference data for the frontend (gate/zone geometry, no secrets) ---
 const stadiumMeta = require('./data/stadiumData.json');
@@ -62,7 +78,7 @@ app.use('/api/navigation', navigationRoutes);
 app.use('/api/crowd', crowdRoutes);
 app.use('/api/accessibility', accessibilityRoutes);
 app.use('/api/sustainability', sustainabilityRoutes);
-app.use('/api/incidents', aiLimiter, incidentRoutes);
+app.use('/api/incidents', incidentRoutes);
 app.use('/api/volunteers', aiLimiter, volunteerRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/reports', reportRoutes);
@@ -79,7 +95,16 @@ app.get('*', (req, res, next) => {
 // eslint-disable-next-line no-unused-vars
 app.use((err, req, res, next) => {
   console.error('[unhandled error]', err);
-  res.status(500).json({ error: 'Internal server error.' });
+  if (err && err.type === 'entity.parse.failed') {
+    return res.status(400).json({ error: 'Invalid JSON body.' });
+  }
+
+  const status = err.status || err.statusCode || 500;
+  if (status >= 400 && status < 500) {
+    return res.status(status).json({ error: err.message || 'Request error.' });
+  }
+
+  return res.status(500).json({ error: 'Internal server error.' });
 });
 
 // Only start listening when this file is run directly (node server.js),
