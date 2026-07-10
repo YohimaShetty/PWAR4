@@ -52,10 +52,19 @@ router.post('/', async (req, res) => {
     pushTurn(sessionId, 'assistant', answer);
     res.json({ answer, sessionId });
   } catch (err) {
-    res.status(err.code === 'NO_API_KEY' ? 503 : 502).json({
-      error: err.code === 'NO_API_KEY'
-        ? 'AI service is not configured on the server (missing GEMINI_API_KEY).'
-        : 'AI service temporarily unavailable. Please try again.',
+    if (err.code === 'NO_API_KEY') {
+      return res.status(503).json({
+        error: 'AI service is not configured on the server (missing GEMINI_API_KEY).',
+      });
+    }
+    if (err.code === 'GEMINI_RATE_LIMIT') {
+      if (err.retryAfterSeconds) res.setHeader('Retry-After', String(err.retryAfterSeconds));
+      return res.status(429).json({
+        error: 'Gemini API quota/rate limit exceeded. Please wait and retry, or increase your Gemini API quota.',
+      });
+    }
+    return res.status(502).json({
+      error: 'AI service temporarily unavailable. Please try again.',
     });
   }
 });
@@ -90,7 +99,9 @@ router.post('/stream', async (req, res) => {
   } catch (err) {
     const errMsg = err.code === 'NO_API_KEY'
       ? 'AI service is not configured on the server (missing GEMINI_API_KEY).'
-      : "I don't have enough information to answer that accurately.";
+      : err.code === 'GEMINI_RATE_LIMIT'
+        ? 'Gemini API quota/rate limit exceeded. Please wait and retry, or increase your Gemini API quota.'
+        : 'AI service temporarily unavailable. Please try again.';
     res.write(`data: ${JSON.stringify({ error: errMsg })}\n\n`);
   }
   res.end();

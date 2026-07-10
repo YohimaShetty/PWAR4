@@ -65,6 +65,29 @@ function buildContents({ history = [], liveData, userMessage, extraInstruction =
   return contents;
 }
 
+function normalizeGeminiError(err) {
+  const message = (err && err.message ? String(err.message) : '').toLowerCase();
+  const details = Array.isArray(err && err.errorDetails) ? err.errorDetails : [];
+  const is429 = message.includes('[429') || message.includes('too many requests') || message.includes('quota exceeded');
+
+  if (is429) {
+    const retryInfo = details.find((d) => d['@type'] === 'type.googleapis.com/google.rpc.RetryInfo');
+    const retryDelayRaw = retryInfo && retryInfo.retryDelay;
+    const retryDelaySeconds = typeof retryDelayRaw === 'string' ? parseInt(retryDelayRaw, 10) : null;
+
+    const quotaError = new Error('Gemini API quota/rate limit exceeded.');
+    quotaError.code = 'GEMINI_RATE_LIMIT';
+    quotaError.status = 429;
+    if (Number.isFinite(retryDelaySeconds)) quotaError.retryAfterSeconds = retryDelaySeconds;
+    return quotaError;
+  }
+
+  const wrapped = new Error('Gemini API request failed.');
+  wrapped.code = 'GEMINI_UPSTREAM_ERROR';
+  wrapped.status = 502;
+  return wrapped;
+}
+
 async function generate({ history, liveData, userMessage, extraInstruction, jsonMode = false }) {
   if (!genAI) {
     const err = new Error('AI service is not configured: GEMINI_API_KEY missing on the server.');
@@ -79,9 +102,13 @@ async function generate({ history, liveData, userMessage, extraInstruction, json
 
   const contents = buildContents({ history, liveData, userMessage, extraInstruction });
 
-  const result = await model.generateContent({ contents });
-  const text = result.response.text();
-  return text;
+  try {
+    const result = await model.generateContent({ contents });
+    const text = result.response.text();
+    return text;
+  } catch (err) {
+    throw normalizeGeminiError(err);
+  }
 }
 
 /**
@@ -96,14 +123,18 @@ async function generateStream({ history, liveData, userMessage, extraInstruction
   const model = genAI.getGenerativeModel({ model: MODEL_NAME });
   const contents = buildContents({ history, liveData, userMessage, extraInstruction });
 
-  const result = await model.generateContentStream({ contents });
-  let full = '';
-  for await (const chunk of result.stream) {
-    const chunkText = chunk.text();
-    full += chunkText;
-    if (onChunk) onChunk(chunkText);
+  try {
+    const result = await model.generateContentStream({ contents });
+    let full = '';
+    for await (const chunk of result.stream) {
+      const chunkText = chunk.text();
+      full += chunkText;
+      if (onChunk) onChunk(chunkText);
+    }
+    return full;
+  } catch (err) {
+    throw normalizeGeminiError(err);
   }
-  return full;
 }
 
 module.exports = { generate, generateStream, GROUNDING_RULES };
