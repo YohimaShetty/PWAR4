@@ -120,7 +120,7 @@ message instead of failing silently.
 | Variable         | Required | Description                                      |
 |-------------------|----------|--------------------------------------------------|
 | `GEMINI_API_KEY`  | Yes (for AI features) | Your Gemini API key. Never commit this. |
-| `GEMINI_MODEL`    | No       | Defaults to `gemini-2.0-flash`.                   |
+| `GEMINI_MODEL`    | No       | Defaults to `gemini-2.5-flash`.                   |
 | `PORT`            | No       | Defaults to `5000`.                               |
 
 ---

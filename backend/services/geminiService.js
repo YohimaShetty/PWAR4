@@ -18,7 +18,26 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 
 const API_KEY = process.env.GEMINI_API_KEY;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+const DEFAULT_MODEL_NAME = 'gemini-2.5-flash';
+const DEPRECATED_MODEL_ALIASES = new Set([
+  'gemini-2.0-flash',
+  'gemini-2.0-flash-001',
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-001',
+]);
+
+function resolveModelName(modelName) {
+  const normalized = (modelName || '').trim();
+  if (!normalized) return DEFAULT_MODEL_NAME;
+  if (DEPRECATED_MODEL_ALIASES.has(normalized)) {
+    // eslint-disable-next-line no-console
+    console.warn(`[geminiService] ${normalized} is deprecated or shut down. Using ${DEFAULT_MODEL_NAME} instead.`);
+    return DEFAULT_MODEL_NAME;
+  }
+  return normalized;
+}
+
+const MODEL_NAME = resolveModelName(process.env.GEMINI_MODEL);
 
 if (!API_KEY) {
   // eslint-disable-next-line no-console
