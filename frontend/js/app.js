@@ -31,10 +31,16 @@ function toast(message, type = 'info') {
 // ---------- View routing ----------
 document.querySelectorAll('.side__item').forEach((btn) => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.side__item').forEach((b) => b.classList.remove('is-active'));
+    document.querySelectorAll('.side__item').forEach((b) => {
+      b.classList.remove('is-active');
+      b.setAttribute('aria-selected', 'false');
+    });
     document.querySelectorAll('.view').forEach((v) => v.classList.remove('is-active'));
     btn.classList.add('is-active');
-    document.getElementById(`view-${btn.dataset.view}`).classList.add('is-active');
+    btn.setAttribute('aria-selected', 'true');
+    const panel = document.getElementById(`view-${btn.dataset.view}`);
+    panel.classList.add('is-active');
+    panel.focus({ preventScroll: true }); // moves screen-reader focus into the newly shown panel
   });
 });
 

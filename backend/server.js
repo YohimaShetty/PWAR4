@@ -82,12 +82,16 @@ app.use((err, req, res, next) => {
   res.status(500).json({ error: 'Internal server error.' });
 });
 
-app.listen(PORT, () => {
-  // eslint-disable-next-line no-console
-  console.log(`StadiumMind AI backend running on port ${PORT}`);
-  if (!process.env.GEMINI_API_KEY) {
-    console.warn('WARNING: GEMINI_API_KEY is not set. AI-powered endpoints will return 503 until it is configured in .env');
-  }
-});
+// Only start listening when this file is run directly (node server.js),
+// not when it's imported (e.g. by the Jest/Supertest test suite).
+if (require.main === module) {
+  app.listen(PORT, () => {
+    // eslint-disable-next-line no-console
+    console.log(`StadiumMind AI backend running on port ${PORT}`);
+    if (!process.env.GEMINI_API_KEY) {
+      console.warn('WARNING: GEMINI_API_KEY is not set. AI-powered endpoints will return 503 until it is configured in .env');
+    }
+  });
+}
 
 module.exports = app;

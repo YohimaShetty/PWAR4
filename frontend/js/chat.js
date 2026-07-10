@@ -25,9 +25,14 @@
 
   toggle.addEventListener('click', () => {
     panel.hidden = !panel.hidden;
+    toggle.setAttribute('aria-expanded', String(!panel.hidden));
     if (!panel.hidden) input.focus();
   });
-  closeBtn.addEventListener('click', () => { panel.hidden = true; });
+  closeBtn.addEventListener('click', () => {
+    panel.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.focus(); // return focus to the trigger, standard dialog-close behavior
+  });
   clearBtn.addEventListener('click', async () => {
     await fetch(`/api/chat/session/${sessionId}`, { method: 'DELETE' });
     messages.innerHTML = '<div class="msg msg--bot">Conversation cleared. What can I help with?</div>';
