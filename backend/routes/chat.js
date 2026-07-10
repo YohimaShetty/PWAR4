@@ -25,6 +25,7 @@ function pushTurn(sessionId, role, text) {
 function buildLiveData() {
   return {
     stadium: stadiumData.stadium,
+    seatZoneMap: stadiumData.seatZoneMap,
     gates: stadiumData.gates,
     facilities: stadiumData.facilities,
     responseTeams: stadiumData.responseTeams,
@@ -34,6 +35,40 @@ function buildLiveData() {
   };
 }
 
+function formatPercent(value) {
+  return `${Math.round(value * 100)}%`;
+}
+
+function getDeterministicAnswer(message, liveData) {
+  const normalized = String(message || '').toLowerCase().trim();
+
+  if (/\bhow many\b.*\bgates?\b/.test(normalized) || /\bnumber of gates?\b/.test(normalized)) {
+    return `There are ${liveData.gates.length} gates at ${liveData.stadium.name}.`;
+  }
+
+  if (/\bwhich zone is busiest\b/.test(normalized) || /\bbusiest zone\b/.test(normalized)) {
+    const zones = Array.isArray(liveData.liveCrowd && liveData.liveCrowd.zones) ? liveData.liveCrowd.zones : [];
+    if (!zones.length) return null;
+
+    const busiest = zones.reduce((best, zone) => {
+      if (!best || zone.occupancy > best.occupancy) return zone;
+      return best;
+    }, null);
+
+    if (!busiest) return null;
+
+    const cap = liveData.stadium.capacity / liveData.stadium.zones.length;
+    const ratio = cap > 0 ? busiest.occupancy / cap : 0;
+    return `Zone ${busiest.zone} is currently the busiest, with ${busiest.occupancy} people (${formatPercent(ratio)} of its zone capacity) and a queue of about ${busiest.queueLengthMeters} meters.`;
+  }
+
+  if (/\bhow many zones?\b/.test(normalized)) {
+    return `There are ${liveData.stadium.zones.length} zones in ${liveData.stadium.name}.`;
+  }
+
+  return null;
+}
+
 // Non-streaming endpoint (simple request/response, used as a fallback)
 router.post('/', async (req, res) => {
   const errors = validateChatBody(req.body);
@@ -41,11 +76,19 @@ router.post('/', async (req, res) => {
 
   const { message, sessionId = 'default' } = req.body;
   const history = getHistory(sessionId);
+  const liveData = buildLiveData();
+
+  const deterministicAnswer = getDeterministicAnswer(message, liveData);
+  if (deterministicAnswer) {
+    pushTurn(sessionId, 'user', message);
+    pushTurn(sessionId, 'assistant', deterministicAnswer);
+    return res.json({ answer: deterministicAnswer, sessionId, source: 'deterministic' });
+  }
 
   try {
     const answer = await geminiService.generate({
       history,
-      liveData: buildLiveData(),
+      liveData,
       userMessage: message,
     });
     pushTurn(sessionId, 'user', message);
@@ -76,6 +119,16 @@ router.post('/stream', async (req, res) => {
 
   const { message, sessionId = 'default' } = req.body;
   const history = getHistory(sessionId);
+  const liveData = buildLiveData();
+
+  const deterministicAnswer = getDeterministicAnswer(message, liveData);
+  if (deterministicAnswer) {
+    pushTurn(sessionId, 'user', message);
+    pushTurn(sessionId, 'assistant', deterministicAnswer);
+    res.write(`data: ${JSON.stringify({ chunk: deterministicAnswer })}\n\n`);
+    res.write(`data: ${JSON.stringify({ done: true, source: 'deterministic' })}\n\n`);
+    return res.end();
+  }
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -86,7 +139,7 @@ router.post('/stream', async (req, res) => {
   try {
     await geminiService.generateStream({
       history,
-      liveData: buildLiveData(),
+      liveData,
       userMessage: message,
       onChunk: (chunk) => {
         full += chunk;
